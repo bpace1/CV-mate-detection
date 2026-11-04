@@ -218,3 +218,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+dataset_yolo26_mate_termo/
+entrenamientos/
+entregable_entrenamiento.zip
+notebooks/*.pt

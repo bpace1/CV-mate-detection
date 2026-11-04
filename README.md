@@ -11,9 +11,11 @@ El proyecto implementa una solución integral de Computer Vision que entrena un 
 ---
 
 ## 👥 Integrantes del Equipo
-* **Bruno**
-* **Franco B.**
-* **Juana**
+* **Bruno Pace**
+* **Franco Bianciotto**
+* **Franco Calcia**
+* **Tomas Avecilla**
+* **Juana Zorzolo**
 
 ---
 

@@ -1,7 +1,7 @@
 # YOLO Dataset Configuration - Mate and Termo Detection
 # Generado automáticamente por unify_annotations.py
 
-path: /home/bd/Documents/UGR - Lic. Cs de Datos/CV/CV-mate-detection/data  # Raíz del dataset
+path: C:\Users\bruno.pace\Documents\UGR\CV\CV-mate-detection\data  # Raíz del dataset
 train: images/train
 val: images/val
 test: images/test

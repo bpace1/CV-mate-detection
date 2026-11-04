@@ -31,6 +31,17 @@ INV_CLASS_MAP = {v: k for k, v in CLASS_MAP.items()}
 def clamp(val, min_val=0.0, max_val=1.0):
     return max(min_val, min(max_val, val))
 
+def format_yolo_coords(xc, yc, nw, nh):
+    xc_r = round(xc, 6)
+    yc_r = round(yc, 6)
+    w_r = round(nw, 6)
+    h_r = round(nh, 6)
+    if xc_r + w_r / 2 > 1.0: xc_r = round(1.0 - w_r / 2 - 1e-6, 6)
+    if xc_r - w_r / 2 < 0.0: xc_r = round(w_r / 2 + 1e-6, 6)
+    if yc_r + h_r / 2 > 1.0: yc_r = round(1.0 - h_r / 2 - 1e-6, 6)
+    if yc_r - h_r / 2 < 0.0: yc_r = round(h_r / 2 + 1e-6, 6)
+    return xc_r, yc_r, w_r, h_r
+
 def unify():
     UNIFIED_DIR.mkdir(parents=True, exist_ok=True)
     LABELS_OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -156,7 +167,8 @@ def unify():
         txt_path = LABELS_OUT_DIR / f"{stem}.txt"
         with open(txt_path, mode='w', encoding='utf-8') as f:
             for a in annots:
-                f.write(f"{a['class_id']} {a['x_center']:.6f} {a['y_center']:.6f} {a['norm_width']:.6f} {a['norm_height']:.6f}\n")
+                xc_r, yc_r, w_r, h_r = format_yolo_coords(a['x_center'], a['y_center'], a['norm_width'], a['norm_height'])
+                f.write(f"{a['class_id']} {xc_r:.6f} {yc_r:.6f} {w_r:.6f} {h_r:.6f}\n")
 
     print(f"[OK] {len(images_annotations)} archivos .txt de etiquetas YOLO creados en: {LABELS_OUT_DIR}")
 

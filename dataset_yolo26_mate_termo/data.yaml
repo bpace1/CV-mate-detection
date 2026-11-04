@@ -1,0 +1,7 @@
+path: c:\Users\bruno.pace\Documents\UGR\CV\CV-mate-detection\dataset_yolo26_mate_termo
+train: images/train
+val: images/val
+test: images/test
+names:
+  0: mate
+  1: termo
