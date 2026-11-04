@@ -1,0 +1,5 @@
+label_name,bbox_x,bbox_y,bbox_width,bbox_height,image_name,image_width,image_height
+mate,1650,3050,1450,2050,IMG_4040.jpeg,4284,5712
+termo,800,550,1550,3750,IMG_4040.jpeg,4284,5712
+mate,115,260,155,205,termo-47.jpeg,477,484
+termo,255,25,145,395,termo-47.jpeg,477,484

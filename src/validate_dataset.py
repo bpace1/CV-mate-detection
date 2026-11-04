@@ -1,133 +1,166 @@
 #!/usr/bin/env python3
-"""
-Script de validación estricta y diagnóstico del dataset.
-Verifica:
-1. Correspondencia 1 a 1 entre imágenes y archivos de etiquetas .txt.
-2. Formato YOLO (5 columnas numéricas, rangos normalizados 0-1, class_id válido).
-3. Integridad física de las imágenes (dimensiones mínimas, decodificación).
-4. Detección de duplicados binarios.
-5. Cumplimiento de los requisitos del Trabajo Práctico (mínimo 50 imágenes por clase).
+"""Valida el dataset unificado antes de entrenar.
+
+Comprueba:
+
+1. Duplicados binarios entre imágenes y copias de descarga (``(1)``, ``(2)``).
+2. Correspondencia entre imágenes de ``dataset/`` y etiquetas de
+   ``data/unified/labels/``.
+3. Formato YOLO de cada línea: 5 columnas, clase válida y coordenadas
+   normalizadas.
+4. Requisito del enunciado: al menos 50 imágenes por clase.
+
+Uso:
+    python3 src/validate_dataset.py
+
+El proceso termina con código 1 si el dataset no cumple los requisitos.
 """
 
-import os
 import hashlib
-from pathlib import Path
+import sys
 from collections import Counter, defaultdict
-from PIL import Image
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-IMAGES_DIR = PROJECT_ROOT / "dataset"
-LABELS_DIR = PROJECT_ROOT / "data" / "unified" / "labels"
+IMAGES_DIR = PROJECT_ROOT / 'dataset'
+LABELS_DIR = PROJECT_ROOT / 'data' / 'unified' / 'labels'
 CLASSES = {0: 'mate', 1: 'termo'}
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+MIN_IMAGES_PER_CLASS = 50
 
-def run_validation():
-    print("=" * 65)
-    print("VALIDACIÓN INTEGRAL DEL DATASET (CRITERIO AUDITORÍA)")
-    print("=" * 65)
 
-    if not IMAGES_DIR.exists():
-        print(f"[ERROR] Directorio de imágenes no encontrado: {IMAGES_DIR}")
-        return False
-    if not LABELS_DIR.exists():
-        print(f"[ERROR] Directorio de etiquetas no encontrado: {LABELS_DIR}")
-        return False
+def find_duplicates(image_files: list[Path]) -> tuple[list[tuple[str, str]],
+                                                       list[str]]:
+    """Busca imágenes idénticas byte a byte y copias de descarga.
 
-    image_files = sorted([p for p in IMAGES_DIR.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS])
-    print(f"Total imágenes encontradas en {IMAGES_DIR.name}/: {len(image_files)}")
+    Args:
+        image_files: Imágenes a revisar.
 
-    # 1. Detección de duplicados exactos y nombres con sufijos accidentales
+    Returns:
+        Una tupla ``(duplicados, copias)``. ``duplicados`` tiene pares
+        ``(archivo, original)`` con el mismo SHA-256 y ``copias`` los nombres
+        con sufijo ``(1)`` o ``(2)``.
+    """
     seen_hashes = {}
     duplicates = []
-    duplicate_suffix_files = []
-
+    suffix_copies = []
     for img_path in image_files:
-        if "(1)" in img_path.name or "(2)" in img_path.name:
-            duplicate_suffix_files.append(img_path.name)
-        with open(img_path, 'rb') as f:
-            h = hashlib.sha256(f.read()).hexdigest()
-        if h in seen_hashes:
-            duplicates.append((img_path.name, seen_hashes[h]))
+        if '(1)' in img_path.name or '(2)' in img_path.name:
+            suffix_copies.append(img_path.name)
+        digest = hashlib.sha256(img_path.read_bytes()).hexdigest()
+        if digest in seen_hashes:
+            duplicates.append((img_path.name, seen_hashes[digest]))
         else:
-            seen_hashes[h] = img_path.name
+            seen_hashes[digest] = img_path.name
+    return duplicates, suffix_copies
 
+
+def check_label_line(line: str) -> tuple[int | None, str | None]:
+    """Valida una línea de etiqueta YOLO.
+
+    Args:
+        line: Línea sin espacios al inicio ni al final.
+
+    Returns:
+        ``(class_id, None)`` si la línea es válida, o ``(None, motivo)`` si
+        no lo es.
+    """
+    parts = line.split()
+    if len(parts) != 5:
+        return None, f'se esperaban 5 valores, hay {len(parts)}'
+    try:
+        class_id = int(parts[0])
+        xc, yc, w, h = map(float, parts[1:])
+    except ValueError:
+        return None, 'valores no numéricos'
+    if class_id not in CLASSES:
+        return None, f'clase desconocida {class_id}'
+    if not (0.0 <= xc <= 1.0 and 0.0 <= yc <= 1.0
+            and 0.0 < w <= 1.0 and 0.0 < h <= 1.0):
+        return None, 'coordenadas fuera de rango [0, 1]'
+    return class_id, None
+
+
+def run_validation() -> bool:
+    """Ejecuta todas las comprobaciones e imprime un reporte.
+
+    Returns:
+        ``True`` si las etiquetas son válidas y cada clase tiene al menos
+        ``MIN_IMAGES_PER_CLASS`` imágenes.
+    """
+    print('=' * 65)
+    print('VALIDACIÓN DEL DATASET')
+    print('=' * 65)
+
+    for folder in (IMAGES_DIR, LABELS_DIR):
+        if not folder.exists():
+            print(f'[ERROR] No existe el directorio: {folder}')
+            return False
+
+    image_files = sorted(p for p in IMAGES_DIR.iterdir()
+                         if p.suffix.lower() in IMAGE_EXTENSIONS)
+    print(f'Imágenes en {IMAGES_DIR.name}/: {len(image_files)}')
+
+    duplicates, suffix_copies = find_duplicates(image_files)
     if duplicates:
-        print(f"\n[ALERTA - IMÁGENES DUPLICADAS]: Se encontraron {len(duplicates)} archivos idénticos:")
+        print(f'\n[ALERTA] {len(duplicates)} imágenes duplicadas:')
         for dup, orig in duplicates:
-            print(f"  - {dup} es idéntico a {orig}")
+            print(f'  - {dup} es idéntica a {orig}')
 
-    # 2. Validación de etiquetas
-    label_files = sorted(list(LABELS_DIR.glob("*.txt")))
-    label_stems = {p.stem for p in label_files if p.name != "classes.txt"}
-    img_stems = {p.stem: p for p in image_files}
+    label_files = sorted(p for p in LABELS_DIR.glob('*.txt')
+                         if p.name != 'classes.txt')
+    label_stems = {p.stem for p in label_files}
+    image_stems = {p.stem for p in image_files}
+    missing_labels = [p.name for p in image_files
+                      if p.stem not in label_stems
+                      and p.name not in suffix_copies]
+    orphan_labels = sorted(label_stems - image_stems)
 
-    missing_labels = [p.name for p in image_files if p.stem not in label_stems and p.name not in duplicate_suffix_files]
-    orphan_labels = [s for s in label_stems if s not in img_stems]
-
-    print(f"\nImágenes válidas anotadas: {len(label_stems)}")
+    print(f'\nImágenes anotadas: {len(label_stems)}')
     if missing_labels:
-        print(f"[INFO] Imágenes presentes sin anotar ({len(missing_labels)}): {missing_labels}")
+        print(f'[INFO] Imágenes sin anotar ({len(missing_labels)}): '
+              f'{missing_labels}')
     if orphan_labels:
-        print(f"[ERROR] Etiquetas sin imagen asociada ({len(orphan_labels)}): {orphan_labels}")
+        print(f'[ERROR] Etiquetas sin imagen ({len(orphan_labels)}): '
+              f'{orphan_labels}')
 
-    # 3. Verificación de sintaxis y rangos YOLO
-    class_box_counts = Counter()
-    class_image_counts = defaultdict(set)
+    box_counts = Counter()
+    image_counts = defaultdict(set)
     syntax_errors = []
-
-    for lab_path in label_files:
-        if lab_path.name == "classes.txt":
-            continue
-        with open(lab_path, 'r', encoding='utf-8') as f:
-            lines = [l.strip() for l in f if l.strip()]
-        
-        for lineno, line in enumerate(lines, 1):
-            parts = line.split()
-            if len(parts) != 5:
-                syntax_errors.append(f"{lab_path.name}:{lineno} - Se esperaban 5 valores, encontrados {len(parts)}")
+    for label_path in label_files:
+        lines = [line.strip() for line in
+                 label_path.read_text(encoding='utf-8').splitlines()
+                 if line.strip()]
+        for lineno, line in enumerate(lines, start=1):
+            class_id, error = check_label_line(line)
+            if error:
+                syntax_errors.append(f'{label_path.name}:{lineno} - {error}')
                 continue
-            try:
-                cls_id = int(parts[0])
-                xc, yc, w, h = map(float, parts[1:])
-            except ValueError:
-                syntax_errors.append(f"{lab_path.name}:{lineno} - Valores no numéricos")
-                continue
-
-            if cls_id not in CLASSES:
-                syntax_errors.append(f"{lab_path.name}:{lineno} - Clase desconocida {cls_id}")
-                continue
-
-            if not (0.0 <= xc <= 1.0 and 0.0 <= yc <= 1.0 and 0.0 < w <= 1.0 and 0.0 < h <= 1.0):
-                syntax_errors.append(f"{lab_path.name}:{lineno} - Coordenadas fuera de rango [0,1]")
-                continue
-
-            class_box_counts[CLASSES[cls_id]] += 1
-            class_image_counts[CLASSES[cls_id]].add(lab_path.stem)
+            box_counts[CLASSES[class_id]] += 1
+            image_counts[CLASSES[class_id]].add(label_path.stem)
 
     if syntax_errors:
-        print(f"\n[ERROR] Se encontraron {len(syntax_errors)} errores de sintaxis en etiquetas:")
-        for err in syntax_errors[:10]:
-            print(f"  - {err}")
+        print(f'\n[ERROR] {len(syntax_errors)} errores en etiquetas:')
+        for error in syntax_errors[:10]:
+            print(f'  - {error}')
     else:
-        print("\n[OK] Sintaxis y rangos YOLO: 100% válidos.")
+        print('\n[OK] Sintaxis y rangos YOLO válidos.')
 
-    # 4. Evaluación de requisitos del Trabajo Práctico
-    print("\n" + "=" * 65)
-    print("CONTROL DE REQUISITOS DEL ENUNCIADO:")
-    print("=" * 65)
-    print("Requisito: Mínimo 50 imágenes por cada clase personalizada (mate, termo)")
-    
-    cumple_todo = True
-    for cname in ['mate', 'termo']:
-        count_imgs = len(class_image_counts[cname])
-        cumple = count_imgs >= 50
-        cumple_todo = cumple_todo and cumple
-        estado = "CUMPLE" if cumple else f"INCOMPLETO (faltan {50 - count_imgs})"
-        print(f"  * {cname.upper()}: {count_imgs} imágenes ({class_box_counts[cname]} bboxes) -> [{estado}]")
+    print('\n' + '=' * 65)
+    print(f'REQUISITO: mínimo {MIN_IMAGES_PER_CLASS} imágenes por clase')
+    print('=' * 65)
+    meets_minimum = True
+    for name in CLASSES.values():
+        n_images = len(image_counts[name])
+        ok = n_images >= MIN_IMAGES_PER_CLASS
+        meets_minimum = meets_minimum and ok
+        status = ('CUMPLE' if ok else
+                  f'INCOMPLETO (faltan {MIN_IMAGES_PER_CLASS - n_images})')
+        print(f'  * {name.upper()}: {n_images} imágenes '
+              f'({box_counts[name]} cajas) -> [{status}]')
+    print('=' * 65)
+    return meets_minimum and not syntax_errors and not orphan_labels
 
-    print("=" * 65)
-    return cumple_todo
 
-if __name__ == "__main__":
-    run_validation()
-
+if __name__ == '__main__':
+    sys.exit(0 if run_validation() else 1)

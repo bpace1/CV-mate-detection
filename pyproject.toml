@@ -1,0 +1,19 @@
+[tool.ruff]
+line-length = 79
+target-version = "py310"
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+# pycodestyle (PEP 8), pyflakes, isort, pep8-naming, pydocstyle, pyupgrade, bugbear
+select = ["E", "W", "F", "I", "N", "D", "UP", "B"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+# En los notebooks las celdas no son módulos: sin docstring de módulo y con
+# constantes en mayúsculas definidas a nivel de celda.
+"*.ipynb" = ["D100", "E402", "N806"]
+
+[tool.ruff.format]
+quote-style = "single"
