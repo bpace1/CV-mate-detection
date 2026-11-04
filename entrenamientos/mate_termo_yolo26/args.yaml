@@ -2,7 +2,7 @@ task: detect
 mode: train
 model: yolo11n.pt
 data: c:\Users\bruno.pace\Documents\UGR\CV\CV-mate-detection\dataset_yolo26_mate_termo\data.yaml
-epochs: 60
+epochs: 120
 time: null
 patience: 15
 batch: 16
