@@ -1,0 +1,29 @@
+# Proyecto Integrador de Visión por Computadora (2026)
+# Detección, Segmentación y Estimación de Pose utilizando YOLO
+
+# Deep Learning & YOLO
+ultralytics>=8.3.0
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Procesamiento de imágenes y video
+opencv-python-headless>=4.8.0
+pillow>=9.5.0
+imagehash>=4.3.1
+
+# Manipulación de datos y serialización
+numpy>=1.24.0
+pandas>=2.0.0
+pyyaml>=6.0
+
+# Machine Learning & Evaluación
+scikit-learn>=1.2.0
+
+# Visualización
+matplotlib>=3.7.0
+
+# Entorno Interactivo (Jupyter)
+jupyter>=1.0.0
+ipywidgets>=8.0.0
+tqdm>=4.65.0
+
