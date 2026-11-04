@@ -1,139 +1,138 @@
-# Proyecto Integrador de Visión por Computadora — 2026
-## Detección, Segmentación y Estimación de Pose utilizando YOLO
+# Detección, segmentación y pose con YOLO26
 
-Repositorio correspondiente al Trabajo Integrador Final de la materia **Visión por Computadora** (Licenciatura en Ciencia de Datos, Universidad del Gran Rosario - UGR).
+Trabajo integrador final de Visión por Computadora 2026, Licenciatura en Ciencia de Datos, Universidad del Gran Rosario (UGR).
 
-El proyecto implementa una solución integral de Computer Vision que entrena un modelo YOLO sobre **clases personalizadas no pertenecientes a COCO** (`mate` y `termo`), y procesa videos en tiempo real combinando simultáneamente **tres arquitecturas de visión por computadora**:
-1. **Detección de Clases Personalizadas** (`mate`, `termo`) con Bounding Boxes, clase y confianza.
-2. **Segmentación Semántica de Objetos COCO** (excluyendo personas y las clases personalizadas para evitar falsos solapamientos).
-3. **Estimación de Pose Humana (Pose Estimation)** con keypoints, esqueleto corporal y tracking visual de personas detectadas.
+Entrenamos un detector YOLO26 para dos clases que no están en COCO, `mate` y `termo`. Después procesamos videos con tres modelos sobre cada fotograma:
 
----
+1. El detector propio dibuja una caja por cada mate o termo, con la clase y la confianza.
+2. `yolo26n-seg.pt` pinta máscaras sobre los objetos COCO. Omite las personas y las máscaras que caen sobre una caja de mate o termo.
+3. `yolo26n-pose.pt` dibuja los keypoints y el esqueleto de cada persona, con un ID de seguimiento.
 
-## 👥 Integrantes del Equipo
-* **Bruno Pace**
-* **Franco Bianciotto**
-* **Franco Calcia**
-* **Tomas Avecilla**
-* **Juana Zorzolo**
+## Integrantes
 
----
+- Bruno Pace
+- Franco Bianciotto
+- Franco Calcia
+- Tomas Avecilla
+- Juana Zorzolo
 
-## 📁 Estructura del Repositorio
+## Estructura del repositorio
 
 ```text
 CV-mate-detection/
 ├── README.md
-├── FALTA_HACER.md                    # Tareas pendientes para la entrega final
+├── FALTA_HACER.md                    # Tareas pendientes para la entrega
 ├── requirements.txt
-├── pyproject.toml                    # Configuración de ruff (PEP 8 + docstrings Google)
+├── pyproject.toml                    # Configuración de ruff
 ├── docs/
-│   └── enunciado_2026.pdf            # Enunciado oficial de la cátedra
-├── dataset/                          # Imágenes originales (JPG/JPEG)
+│   └── enunciado_2026.pdf            # Enunciado de la cátedra
+├── dataset/                          # 90 fotos originales
 ├── data/
-│   ├── raw_annotations/              # CSV exportados por cada integrante (MakeSense)
+│   ├── raw_annotations/              # CSV de MakeSense de cada integrante
 │   └── unified/
-│       ├── annotations.csv           # Todas las cajas unificadas
-│       └── labels/                   # Un .txt YOLO por imagen + classes.txt
+│       ├── annotations.csv           # Todas las cajas en un solo CSV
+│       └── labels/                   # Un .txt YOLO por imagen y classes.txt
 ├── src/
-│   ├── unify_annotations.py          # raw_annotations/ -> unified/
-│   └── validate_dataset.py           # Validación del dataset y requisito de 50 imágenes/clase
+│   ├── unify_annotations.py          # Genera data/unified/ a partir de raw_annotations/
+│   └── validate_dataset.py           # Valida etiquetas y el mínimo de 50 imágenes por clase
 ├── notebooks/
-│   ├── 01_Entrenamiento_YOLO26.ipynb # Split, transfer learning y evaluación en test
-│   └── 02_Procesamiento_Videos_YOLO26.ipynb # Detección + segmentación + pose sobre video
+│   ├── 01_Entrenamiento_YOLO26.ipynb # Split, entrenamiento y evaluación en test
+│   └── 02_Procesamiento_Videos_YOLO26.ipynb # Detección, segmentación y pose sobre video
 ├── models/
-│   └── best.pt                       # Pesos entrenados (los copia el notebook 01)
-├── resultados/                       # Métricas y gráficos finales (los copia el notebook 01)
+│   └── best.pt                       # Pesos entrenados
+├── resultados/                       # Métricas y gráficos de la evaluación en test
 └── videos/
     ├── input/                        # Videos originales
     └── output/                       # Videos procesados
 ```
 
-Las carpetas `dataset_yolo26_mate_termo/` (split train/val/test) y `entrenamientos/` (corridas de Ultralytics) las genera el notebook 01 y no se versionan.
+El notebook 01 genera `dataset_yolo26_mate_termo/` (el split train/val/test) y `entrenamientos/` (las corridas de Ultralytics). Ninguna de las dos se versiona.
 
----
+## Clases y etiquetas
 
-## 🏷️ Clases Personalizadas y Homogeneización de Etiquetas
+| ID | Clase | Imágenes | Cajas |
+|----|-------|----------|-------|
+| 0 | `mate` | 60 | 61 |
+| 1 | `termo` | 50 | 51 |
 
-Se seleccionaron 2 clases que **no pertenecen a las 80 clases de COCO**:
-* **Clase `0`**: `mate`
-* **Clase `1`**: `termo`
+Cada integrante anotó un grupo de fotos en MakeSense y exportó un CSV. En el export de Bruno los IDs estaban invertidos (0 era termo y 1 era mate). `src/unify_annotations.py` asigna el ID según el nombre de la etiqueta, así que el orden de cada export no importa. El script también descarta las cajas repetidas dentro de una imagen; había una en `IMG_7177.jpg`.
 
-### Problema resuelto en la unificación de datos
-Durante la etapa de etiquetado colaborativo, las herramientas de exportación asignaron órdenes distintos de clases entre integrantes (en particular, las anotaciones de Bruno tenían los IDs invertidos: `0` para termo y `1` para mate).
+Para regenerar y validar las etiquetas:
 
-El script [`src/unify_annotations.py`](src/unify_annotations.py) resolvió este problema de forma automática y reproducible:
-* Homogeneizó todas las etiquetas al estándar oficial `{0: 'mate', 1: 'termo'}`.
-* Eliminó anotaciones duplicadas sobre una misma imagen (`IMG_7177.jpg`).
-* Validó que todas las coordenadas estuvieran normalizadas en `[0.0, 1.0]`.
-* Limpió copias redundantes de descarga (`IMG_4041(1).jpeg`, etc.).
-
-Para volver a generar o auditar las etiquetas:
 ```bash
 python3 src/unify_annotations.py
 python3 src/validate_dataset.py
 ```
 
----
+`unify_annotations.py` borra y vuelve a escribir `data/unified/labels/`. Cualquier anotación nueva tiene que estar en un CSV de `data/raw_annotations/` y en la lista `SOURCES` del script.
 
-## ⚙️ Instalación y Requisitos
+## Instalación
 
-Se recomienda utilizar un entorno virtual con **Python 3.10+**:
+Hace falta Python 3.10 o posterior.
 
 ```bash
-# Crear y activar entorno virtual
-python3 -m venv venv
-source venv/bin/activate  # En Linux/Mac
-# venv\Scripts\activate   # En Windows
-
-# Instalar dependencias
+python3 -m venv .venv
+source .venv/bin/activate        # en Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
----
+`requirements.txt` instala PyTorch con CUDA. En una máquina sin GPU NVIDIA conviene instalar antes la versión para CPU:
 
-## 🚀 Flujo de Trabajo y Ejecución
+```bash
+pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+```
 
-### 1. Notebook 01: Entrenamiento (`notebooks/01_Entrenamiento_YOLO26.ipynb`)
-* **Objetivo:** Aplicar *Transfer Learning* partiendo de los pesos preentrenados en COCO de YOLO26 nano (`yolo26n.pt`, Ultralytics >= 8.4) sobre el dataset de mate y termo.
-* **Entorno recomendado:** Google Colab con acelerador GPU (T4 o superior).
-* **Parámetros configurados:**
-  * `EPOCHS = 120` (con early stopping, `PATIENCE = 15`)
-  * `IMGSZ = 640`
-  * `BATCH = 16`
-  * Split de datos: 80% train / 10% val / 10% test.
-* **Salidas generadas:**
-  * `entrenamientos/mate_termo_yolo26/weights/best.pt` (pesos del mejor modelo).
-  * Curvas de aprendizaje (`results.png`), curvas PR y F1 (`BoxPR_curve.png`, `BoxF1_curve.png`).
-  * Matriz de confusión con `conf=0.35` en `entrenamientos/test_mate_termo_conf35/`.
-  * Reporte cuantitativo en test con P, R, F1 y mAP (`metricas_test.json` y `metricas_por_clase.csv`).
+## Ejecución
 
-### 2. Notebook 02: Procesamiento de Videos (`notebooks/02_Procesamiento_Videos_YOLO26.ipynb`)
-* **Objetivo:** Ingerir videos de entrada (ubicados en `videos/input/`) de hasta 2 minutos y procesarlos integrando simultáneamente (modelos `best.pt`, `yolo26n-seg.pt` y `yolo26n-pose.pt`):
-  * **Segmentación:** Segmenta objetos COCO (tazas, botellas, mesas, libros, etc.) que superen `CONF_SEG=0.45`, excluyendo la clase `person` y suprimiendo máscaras que solapen con las cajas de mate/termo.
-  * **Pose:** Estima keypoints y dibuja el esqueleto de todas las personas detectadas con tracking persistente.
-  * **Detección Custom:** Dibuja bounding boxes diferenciadas por color para `mate` y `termo`, indicando clase y score de confianza.
-* **Salida generada:**
-  * Videos finales codificados en H.264 (`.mp4`) en `videos/output/`.
-  * Gráfico comparativo de fotogramas (original vs procesado).
-  * Reporte de cobertura y conteo de detecciones (`resumen_procesamiento.csv`).
+### Notebook 01: entrenamiento
 
-### Estilo de código
-El código sigue PEP 8 (líneas de 79 caracteres) y documenta cada función con docstrings estilo Google. La configuración de `ruff` está en `pyproject.toml` y cubre `src/` y los notebooks:
+Entrena `yolo26n.pt`, preentrenado en COCO, sobre nuestras dos clases. Conviene correrlo con GPU (Colab con T4 alcanza).
+
+| Parámetro | Valor |
+|-----------|-------|
+| Épocas | hasta 120, con early stopping a las 15 sin mejora |
+| Tamaño de imagen | 640 |
+| Batch | 16 |
+| Split | 80 % train, 10 % val, 10 % test |
+
+La última celda copia `best.pt` a `models/` y las métricas y gráficos a `resultados/`:
+
+- `metricas_test.json` y `metricas_por_clase.csv`: precisión, recall, F1, mAP50 y mAP50-95 en test.
+- `BoxPR_curve.png` y `BoxF1_curve.png`: curvas precisión-recall y F1 según la confianza.
+- `confusion_matrix.png`: matriz de confusión con confianza 0.35. Con el umbral por defecto de Ultralytics (0.001) la columna de fondo se llena de predicciones casi sin confianza y la matriz no se puede leer.
+- `results.png` y `results.csv`: pérdidas y métricas de validación por época.
+
+Para correrlo en Colab, agregar una celda al principio con:
+
+```python
+!git clone https://github.com/bpace1/CV-mate-detection.git /content/CV-mate-detection
+%cd /content/CV-mate-detection/notebooks
+```
+
+Esa celda no va en el notebook que se entrega.
+
+### Notebook 02: videos
+
+Lee los videos de `videos/input/` (hasta 2 minutos cada uno) y escribe en `videos/output/` un MP4 H.264 por video con las tres capas. También genera `resumen_procesamiento.csv`, con la cantidad de detecciones, máscaras y personas por video. Necesita `models/best.pt`.
+
+Los umbrales están en la celda de modelos: `CONF_CUSTOM=0.35` para el detector propio, `CONF_SEG=0.45` para la segmentación y `CONF_POSE=0.35` para la pose. Si una máscara COCO cubre una caja de mate o termo en un 50 % o más (`MASK_OVERLAP_SUPPRESS`), no se dibuja.
+
+## Estilo de código
+
+El código sigue PEP 8 con líneas de hasta 79 caracteres, y cada función tiene un docstring con formato Google. `pyproject.toml` configura ruff para `src/` y los notebooks:
+
 ```bash
 ruff check src/ notebooks/
 ```
 
----
+## Entregables
 
-## 📋 Entregables del Proyecto
+Según el enunciado, la entrega incluye:
 
-Según las consignas del enunciado, la entrega final debe incluir:
-1. **Código fuente:** Notebooks completos y scripts auxiliares.
-2. **Dataset:** Imágenes y etiquetas unificadas en formato YOLO, junto al archivo `data.yaml`.
-3. **Pesos entrenados:** Archivo `best.pt`.
-4. **Videos:** Videos originales y videos finales procesados con los 3 modelos integrados.
-5. **Documentación final:** Resumen de dataset, proceso de entrenamiento, métricas obtenidas, ejemplos visuales y conclusiones.
+1. Los dos notebooks ejecutados y los scripts de `src/`.
+2. El dataset: `dataset/`, `data/unified/labels/` y el `data.yaml` que genera el notebook 01.
+3. Los pesos entrenados, `models/best.pt`.
+4. Los videos originales y los procesados.
+5. La documentación del dataset, el entrenamiento, las métricas y las conclusiones.
 
-> [!NOTE]
-> Para consultar la lista detallada de tareas pendientes antes de la entrega formal, consultar el archivo [`FALTA_HACER.md`](FALTA_HACER.md).
+Lo que falta está en [FALTA_HACER.md](FALTA_HACER.md).
