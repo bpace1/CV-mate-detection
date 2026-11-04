@@ -1,6 +1,3 @@
-"""
-Paquete src para el Proyecto Integrador de Visión por Computadora (CV-mate-detection).
-"""
+"""Paquete del Proyecto Integrador de Visión por Computadora."""
 
-__version__ = "1.0.0"
-
+__version__ = '1.0.0'

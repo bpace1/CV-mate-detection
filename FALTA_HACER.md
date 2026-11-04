@@ -1,7 +1,7 @@
 # Lista de Tareas Pendientes para la Entrega Final
 ## Proyecto Integrador: Detección, Segmentación y Pose con YOLO (2026)
 
-Este documento detalla **con precisión técnica y académica todo lo que falta hacer** para completar el 100% de los requisitos exigidos en el enunciado oficial de la cátedra (`Proyecto Integrador Visión por Computadora - 2026.pdf`), además de la mera ejecución de los notebooks.
+Lo que falta para cumplir el enunciado (`docs/enunciado_2026.pdf`).
 
 ---
 
@@ -12,7 +12,7 @@ Este documento detalla **con precisión técnica y académica todo lo que falta 
 * **Clase `termo` (ID 1):** **50 imágenes únicas** (52 bounding boxes) → **CUMPLE** ✅
 
 > Se anotaron `IMG_4040.jpeg` y `termo-47.jpeg` con bounding boxes verificados visualmente para mate y termo.
-> Labels guardados en `data/unified/labels/`, CSV (112 registros) y ZIP actualizados.
+> Labels guardados en `data/unified/labels/`, y CSV (112 registros) actualizados. Las anotaciones están en `data/raw_annotations/labels_Franco_C.csv`.
 
 ---
 
@@ -40,15 +40,16 @@ Los videos deben contener:
 > *"Entrenamiento deberá realizarse utilizando: Modelos YOLO, Transfer Learning, Dataset propio generado por el grupo... Entregable: Archivo de best.pt (los pesos entrenados)"*
 
 ### Nota:
-Bruno ya corrió un entrenamiento previo con 60 épocas que tardó ~5 min en GPU. Los resultados fueron:
-* Precision: 0.876, Recall: 0.690, mAP50: 0.803, mAP50-95: 0.596
-* Ahora que se agregaron 2 imágenes más, **hay que re-entrenar** para que el split train/val/test incluya las nuevas imágenes.
+Las corridas previas de Bruno usaron **YOLO11n**, no YOLO26: el notebook solo tomaba `yolo26n.pt` si el archivo ya estaba en disco. Última corrida (2026-11-04, 120 épocas, cortó en la 73): test P 0.948, R 0.804, F1 0.87, mAP50 0.800, mAP50-95 0.606.
+* El notebook ahora fuerza `yolo26n.pt` (Ultralytics >= 8.4), reporta F1 y genera la matriz de confusión con `conf=0.35`. **Hay que re-entrenar.**
+* `models/best.pt` es de una corrida anterior (60 épocas); reemplazarlo por el nuevo.
+* El test tiene solo 9 imágenes (11 cajas): las métricas varían mucho con un solo error. Mencionarlo en las conclusiones.
 
 ### Acción a realizar:
-1. Hacer `git pull` para obtener las 2 anotaciones nuevas.
-2. Abrir `notebooks/01_Entrenamiento_YOLO26.ipynb` en Google Colab con GPU T4.
-3. Ejecutar todas las celdas secuencialmente.
-4. Copiar `best.pt` resultante a `models/best.pt`.
+1. Hacer `git pull`.
+2. Abrir `notebooks/01_Entrenamiento_YOLO26.ipynb` en una máquina con GPU (Colab T4 o la notebook de Bruno).
+3. Ejecutar todas las celdas en orden.
+4. Commitear `models/best.pt` y `resultados/`: la última celda los copia sola.
 
 ---
 
@@ -84,8 +85,8 @@ Una vez completado el re-entrenamiento en el Notebook 01, redactar en la **Secci
 * [x] **Dataset:** Imágenes en `dataset/`, etiquetas en `data/unified/labels/` y archivo `data.yaml`. (60 mate + 50 termo ✅)
 * [x] **Código Fuente:** Repositorio limpio con los 2 notebooks y scripts auxiliares.
 * [ ] **Videos de prueba:** Colocar en `videos/input/` 2-3 videos de ~20 seg.
-* [ ] **Re-entrenamiento:** Correr Notebook 01 con dataset completo y guardar `best.pt`.
-* [ ] **Pesos entrenados:** Archivo `best.pt` en `models/`.
+* [ ] **Re-entrenamiento:** Correr Notebook 01 con YOLO26 y el dataset completo.
+* [ ] **Pesos y métricas:** `models/best.pt` y `resultados/` commiteados.
 * [ ] **Videos procesados:** Videos procesados en `videos/output/`.
 * [ ] **Documentación:** Completar conclusiones con métricas reales del re-entrenamiento.
 * [ ] **Fecha de entrega:** Verificar envío antes del último día hábil de la ante-última semana de cursada.
