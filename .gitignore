@@ -222,4 +222,5 @@ __marimo__/
 dataset_yolo26_mate_termo/
 entrenamientos/
 entregable_entrenamiento.zip
-notebooks/*.pt
+notebooks/*.ptentregable_entrenamiento.zip
+entregable_entrenamiento.zip
