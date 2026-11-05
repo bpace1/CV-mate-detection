@@ -11,7 +11,7 @@ Actualizado el 5 de noviembre de 2026 contra `docs/enunciado_2026.pdf`.
 - [x] Entrenamiento por transfer learning con YOLO26; comparación de cuatro configuraciones y selección usando validación.
 - [x] Pesos seleccionados en `models/best.pt` y confianza 0.25 en `models/inferencia.json`, unidos por SHA-256.
 - [x] Métricas, curvas, matriz, predicciones, calibración e historial de 80 épocas en `resultados/comparacion_mejoras/`.
-- [x] Ambos notebooks ejecutados sin errores guardados y con conclusiones.
+- [x] Ambos notebooks con conclusiones y salidas; la última revisión del notebook 02 registra ejecución parcial (6/10 celdas) desde las funciones, sin errores guardados.
 - [x] Cuatro videos originales y procesados, todos por debajo de dos minutos.
 - [x] Integración ejecutada de detección, segmentación COCO y pose; video04 aporta evidencia visual de esqueleto y seguimiento.
 - [x] Fuente y tramo 00:00–00:25 del video público registrados en `videos/input/video04_fuente.json` y `docs/video04_fuente_y_ejecucion.md`.
@@ -19,9 +19,9 @@ Actualizado el 5 de noviembre de 2026 contra `docs/enunciado_2026.pdf`.
 
 ## Pendientes reales antes de cerrar la entrega
 
-1. **Segmentación sobre clases propias.** El enunciado pide excluirlas. El filtro implementado depende de las cajas propias; en muestras de video02 y video04 una máscara COCO cubre el mate cuando falta o es parcial su detección. La exclusión no es consistente. Hay que mejorar y volver a comprobar ese comportamiento para afirmar cumplimiento visual completo; documentarlo no lo corrige.
+1. **Segmentación sobre clases propias.** El enunciado pide excluirlas. El filtro implementado depende de las cajas propias; en muestras de video02 y video04 una máscara COCO cubre el mate cuando falta o es parcial su detección. La exclusión no es consistente. El filtro temporal ya mejoró las muestras señaladas de video04, pero en video02 persiste una máscara bowl alrededor de 10.85 s. No se puede afirmar exclusión perfecta; documentarlo no lo corrige.
 2. **Falsos positivos y generalización.** Hay detecciones de termo sobre la persona en video04 y mates omitidos. El enunciado no fija un mAP mínimo ni exige detección perfecta, pero estas limitaciones deben quedar explícitas al presentar el trabajo. El test de 14 fotos/17 objetos es pequeño.
-3. **Revisión final humana.** Mirar completos los cuatro videos procesados, además de las muestras ya revisadas, y comprobar que la selección final muestre con claridad las tres tareas.
+3. **Notebook final y revisión humana.** Ejecutar todas las celdas del notebook 02 una vez y guardar la copia completa.  Mirar completos los cuatro videos procesados, además de las muestras ya revisadas, y comprobar que la selección final muestre con claridad las tres tareas.
 4. **Formato de presentación.** El enunciado no exige expresamente un informe PDF separado. Si la cátedra lo pidió por otro medio, o el grupo quiere una memoria unificada, falta preparar ese informe/presentación; la información técnica ya está documentada.
 5. **Envío a la cátedra.** Confirmar el canal y la fecha efectiva, y realizar la entrega. El enunciado refiere al último día hábil de la anteúltima semana de cursada, sin una fecha calendario.
 

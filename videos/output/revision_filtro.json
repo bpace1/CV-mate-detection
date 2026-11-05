@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-05",
+  "filter": "intersection / min(mask_area, box_area)",
+  "overlap_threshold": 0.5,
+  "history_seconds": 2.0,
+  "history_reset_per_video": true,
+  "video04_improved_samples_seconds": [
+    1,
+    20,
+    22
+  ],
+  "remaining_overlap": {
+    "video": "video02.mp4",
+    "seconds": 10.85,
+    "coco_label": "bowl"
+  },
+  "all_output_videos_fully_decoded": true,
+  "notebook_executed_code_cells": 6,
+  "notebook_total_code_cells": 10,
+  "full_clean_execution_verified": false,
+  "local_inference_performed": false,
+  "sha256_notebook_with_updated_conclusions": "80808f76705178f0b061c763fb838aeefba4b4f31f051afaa7f417ef0dcee06f",
+  "source_archive_sha256": "ba89aef4cc0b0f120d34c7c3ccbe9ab5d08813042b601e544be414696866fd8b"
+}

@@ -37,3 +37,11 @@ Se recibió el notebook 02 de la corrida de cuatro videos: sus 10 celdas de cód
 Se completaron las conclusiones de ambos notebooks usando los resultados guardados y las observaciones visuales documentadas. Se conservaron sin cambios el código, los números de ejecución y los outputs. No se volvió a entrenar ni se ejecutó inferencia local.
 
 La fuente y el recorte de video04 están registrados en `docs/video04_fuente_y_ejecucion.md` y `videos/input/video04_fuente.json`. La integración de modelos tiene evidencia de ejecución y de pose; las confusiones y la supresión imperfecta de máscaras se mantienen explícitas como limitaciones.
+
+## Actualización: filtro temporal
+
+Se recibió e incorporó una nueva corrida con memoria de cajas de dos segundos y solapamiento referido al menor área entre máscara y caja. Los cuatro videos se decodifican completos. En video04, las muestras de 1, 20 y 22 segundos ya no muestran la máscara sobre el mate. En video02 persiste una máscara bowl sobre el mate alrededor de 10.85 segundos. También persisten los falsos positivos del detector sobre la persona.
+
+Las máscaras por video bajaron de 389/1184/1578/272 a 378/490/1157/13. Esto no es una medida de precisión ni prueba de que se conservaron todas las máscaras legítimas. Se revisaron muestras adicionales de otros objetos COCO. El total de tiempo sigue siendo 248.7 s, unos 11.4 FPS efectivos; cambian los tiempos individuales.
+
+El notebook recibido tiene 6 de 10 celdas de código con número de ejecución, pues se reejecutó desde las funciones, y no contiene errores guardados. Se conserva esa evidencia sin inventar contadores de las celdas iniciales. Para la entrega final conviene ejecutar todo y guardar la copia completa. Se actualizaron las conclusiones y se registró la revisión en videos/output/revision_filtro.json.
