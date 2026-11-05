@@ -1,0 +1,23 @@
+{
+  "source_url": "https://www.youtube.com/watch?v=I5JOt0B6iS8",
+  "title": "La forma definitiva de preparar mate: ¡Tips infalibles!🧉",
+  "channel": "Sudamerican Mate 🧉",
+  "uploader": "Sudamerican Mate 🧉",
+  "upload_date": "20190922",
+  "source_duration": 240,
+  "source_license": null,
+  "segment_start_seconds": 0,
+  "segment_end_seconds": 25,
+  "acquired_date": "2026-11-05",
+  "width": 1280,
+  "height": 720,
+  "local_file": "videos/input/video04.mp4",
+  "sha256": "c9841a2e1c0cb54b70ed6d9e0f415b39048a5674ea614287a7612e1cc869ac1d",
+  "clip_duration_seconds": 25.0,
+  "clip_frames": 625,
+  "clip_fps": 25.0,
+  "clip_width": 1280,
+  "clip_height": 720,
+  "license_note": "El extractor no informa una licencia específica; no se presupone Creative Commons.",
+  "processing_status": "Procesado en Colab; salida videos/output/video04_yolo26.mp4, ver docs/revision_videos.md."
+}

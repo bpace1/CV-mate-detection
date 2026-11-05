@@ -225,3 +225,9 @@ yolo*.pt
 
 # Area de trabajo local (no versionar)
 scratch/
+
+# Exportaciones regenerables y copias locales de descarga/revisión.
+entregable_videos.zip
+resultados/historico_videos_3/
+resultados/comparacion_mejoras/errores_test ([0-9]).json
+resultados/comparacion_mejoras/results_captura.png

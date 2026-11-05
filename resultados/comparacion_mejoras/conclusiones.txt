@@ -1,0 +1,1 @@
+Seleccionado: n_sin_mosaic (yolo26n.pt), mAP50-95 de validación=0.824. Test: 14 imágenes, 17 objetos, mAP50=0.905, mAP50-95=0.593, F1 macro=0.874 con confianza 0.25. La selección de modelo y confianza utilizó solo validación. Una única partición pequeña limita la generalización de estos valores.

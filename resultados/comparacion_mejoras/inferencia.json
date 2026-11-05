@@ -1,0 +1,7 @@
+{
+  "confidence": 0.25,
+  "imgsz": 640,
+  "experiment": "n_sin_mosaic",
+  "selection_split": "val",
+  "weights_sha256": "37910d2adef0de5b7beb35a9a716d23c72aa9af885e8c86aa5da47a73a959ef6"
+}

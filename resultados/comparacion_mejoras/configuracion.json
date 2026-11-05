@@ -1,0 +1,36 @@
+{
+  "python": "3.13.16 (main, Oct  1 2026, 15:40:24) [GCC 13.3.0]",
+  "torch": "2.11.0+cu130",
+  "ultralytics": "8.4.202",
+  "gpu": "Tesla T4",
+  "seed": 42,
+  "split_sha256": "be8a811691a6e702fe0bc11f65ad176329bb86976ffc0aab2b5d14b8e26daec2",
+  "epochs": 80,
+  "batch": 16,
+  "imgsz": 640,
+  "patience": 20,
+  "close_mosaic": 60,
+  "workers": 2,
+  "experiments": [
+    {
+      "name": "n_mosaic100",
+      "model": "yolo26n.pt",
+      "mosaic": 1.0
+    },
+    {
+      "name": "n_sin_mosaic",
+      "model": "yolo26n.pt",
+      "mosaic": 0.0
+    },
+    {
+      "name": "n_mosaic50",
+      "model": "yolo26n.pt",
+      "mosaic": 0.5
+    },
+    {
+      "name": "s_mosaic50",
+      "model": "yolo26s.pt",
+      "mosaic": 0.5
+    }
+  ]
+}

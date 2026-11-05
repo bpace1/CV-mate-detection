@@ -8,6 +8,36 @@ Entrenamos un detector YOLO26 para dos clases que no están en COCO, `mate` y `t
 2. `yolo26n-seg.pt` pinta máscaras sobre los objetos COCO. Omite las personas y las máscaras que caen sobre una caja de mate o termo.
 3. `yolo26n-pose.pt` dibuja los keypoints y el esqueleto de cada persona, con un ID de seguimiento.
 
+## Comparación revisada del entrenamiento
+
+El notebook 01 compara cuatro configuraciones de YOLO26 con etiquetas corregidas, sesiones agrupadas y un split persistente en `data/split_manifest.csv`. Selecciona modelo y confianza exclusivamente con validación. El notebook 02 lee esa confianza desde `models/inferencia.json`.
+
+Los resultados nuevos se guardan en `resultados/comparacion_mejoras/`; los pesos y resultados originales están en `resultados/historico_original/`. Las métricas antiguas citadas más abajo describen la corrida anterior, con otro split y otras etiquetas, y no son directamente comparables.
+
+Para el entrenamiento revisado, instalar PyTorch compatible con el driver y después `pip install -r requirements-training.txt`. En Colab se conserva el torch/CUDA ya instalado. El notebook descarga los pesos preentrenados al necesitarlos.
+
+Correcciones, criterio de anotación y límites: [docs/mejoras_entrenamiento.md](docs/mejoras_entrenamiento.md).
+
+## Estado de la entrega
+
+Los dos notebooks están ejecutados y tienen conclusiones. Se incluyen los pesos seleccionados, la configuración de inferencia, métricas de la comparación y cuatro videos originales/procesados. El detector elegido es YOLO26n sin mosaic, con confianza 0.25; en test obtuvo mAP50 0.9045 y mAP50–95 0.5933. El test contiene 14 imágenes y 17 objetos, por lo que no demuestra robustez general.
+
+El video04 muestra keypoints, esqueleto y seguimiento de una persona. Persisten falsos positivos de termo sobre la persona y máscaras COCO sobre el mate cuando falla su detección propia. Estas limitaciones están documentadas en los notebooks y en [docs/revision_videos.md](docs/revision_videos.md).
+
+El enunciado pide documentación del proyecto, dataset, entrenamiento, resultados, ejemplos y conclusiones; no fija un formato separado de informe PDF. La documentación está distribuida entre este README, los notebooks y `docs/`. Si la cátedra solicita un informe o presentación aparte, falta preparar ese formato.
+
+### Reconstruir el dataset sin entrenar
+
+El archivo versionado [data.yaml](data.yaml) usa rutas relativas. Después de clonar y desde la raíz:
+
+```bash
+python src/prepare_dataset.py
+```
+
+El script usa `data/split_manifest.csv`, verifica hashes y conserva exactamente las 63/13/14 imágenes de train/val/test. Copia imágenes y etiquetas a `dataset_yolo26_mate_termo/` y crea allí otro YAML portable; no cambia el split ni entrena. Esa carpeta y los ZIP se regeneran y no se suben duplicados a Git. Las imágenes originales y etiquetas sí están versionadas.
+
+El YAML dentro del ZIP original de Colab conserva la ruta de esa sesión. Para reproducir en otra máquina, usar el YAML del repositorio y el script anterior.
+
 ## Integrantes
 
 - Bruno Pace
@@ -52,7 +82,7 @@ El notebook 01 genera `dataset_yolo26_mate_termo/` (el split train/val/test) y `
 
 | ID | Clase | Imágenes | Cajas |
 |----|-------|----------|-------|
-| 0 | `mate` | 60 | 61 |
+| 0 | `mate` | 62 | 65 |
 | 1 | `termo` | 50 | 51 |
 
 Cada integrante anotó un grupo de fotos en MakeSense y exportó un CSV. En el export de Bruno los IDs estaban invertidos (0 era termo y 1 era mate). `src/unify_annotations.py` asigna el ID según el nombre de la etiqueta, así que el orden de cada export no importa. El script también descarta las cajas repetidas dentro de una imagen; había una en `IMG_7177.jpg`.
@@ -86,36 +116,24 @@ pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
 
 ### Notebook 01: entrenamiento
 
-Entrena `yolo26n.pt`, preentrenado en COCO, sobre nuestras dos clases. Conviene correrlo con GPU (Colab con T4 alcanza).
+Compara YOLO26n y YOLO26s, preentrenados en COCO, sobre nuestras dos clases. Conviene correrlo con GPU (Colab con T4 alcanza).
 
 | Parámetro | Valor |
 |-----------|-------|
-| Épocas | hasta 120, con early stopping a las 15 sin mejora |
+| Épocas | hasta 80 por candidato, early stopping de 20 |
 | Tamaño de imagen | 640 |
-| Batch | 16 |
-| Split | 80 % train, 10 % val, 10 % test |
+| Batch | 16 en Colab; 4 en local |
+| Split | 63 train, 13 val, 14 test; sesiones agrupadas |
 
-La última celda copia `best.pt` a `models/` y las métricas y gráficos a `resultados/`:
+La exportación copia los pesos elegidos por validación a `models/best.pt` y su umbral a `models/inferencia.json`. Las métricas y gráficos revisados van a `resultados/comparacion_mejoras/`. Los archivos antiguos en la raíz de `resultados/` y en `historico_original/` corresponden a la corrida previa.
 
-- `metricas_test.json` y `metricas_por_clase.csv`: precisión, recall, F1, mAP50 y mAP50-95 en test.
-- `BoxPR_curve.png` y `BoxF1_curve.png`: curvas precisión-recall y F1 según la confianza.
-- `confusion_matrix.png`: matriz de confusión con confianza 0.35. Con el umbral por defecto de Ultralytics (0.001) la columna de fondo se llena de predicciones casi sin confianza y la matriz no se puede leer.
-- `results.png` y `results.csv`: pérdidas y métricas de validación por época.
-
-Para correrlo en Colab, agregar una celda al principio con:
-
-```python
-!git clone https://github.com/bpace1/CV-mate-detection.git /content/CV-mate-detection
-%cd /content/CV-mate-detection/notebooks
-```
-
-Esa celda no va en el notebook que se entrega.
+Para Colab, ver [docs/ejecutar_en_colab.md](docs/ejecutar_en_colab.md): abrir el notebook actualizado, habilitar GPU y cargar el ZIP completo en su primera celda. No es necesario clonar GitHub ni instalar PyTorch manualmente en Colab.
 
 ### Notebook 02: videos
 
 Lee los videos de `videos/input/` (hasta 2 minutos cada uno) y escribe en `videos/output/` un MP4 H.264 por video con las tres capas. También genera `resumen_procesamiento.csv`, con la cantidad de detecciones, máscaras y personas por video. Necesita `models/best.pt`.
 
-Los umbrales están en la celda de modelos: `CONF_CUSTOM=0.35` para el detector propio, `CONF_SEG=0.45` para la segmentación y `CONF_POSE=0.35` para la pose. Si una máscara COCO cubre una caja de mate o termo en un 50 % o más (`MASK_OVERLAP_SUPPRESS`), no se dibuja.
+El detector propio lee la confianza de `models/inferencia.json` (debe acompañar a los pesos; se verifica su hash). Los otros umbrales son `CONF_SEG=0.45` para la segmentación y `CONF_POSE=0.35` para la pose. Si una máscara COCO cubre una caja de mate o termo en un 50 % o más (`MASK_OVERLAP_SUPPRESS`), no se dibuja.
 
 ## Estilo de código
 

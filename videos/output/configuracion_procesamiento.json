@@ -1,0 +1,19 @@
+{
+  "detector_weights_sha256": "37910d2adef0de5b7beb35a9a716d23c72aa9af885e8c86aa5da47a73a959ef6",
+  "experiment": "n_sin_mosaic",
+  "confidence_custom": 0.25,
+  "confidence_seg": 0.45,
+  "confidence_pose": 0.35,
+  "confidence_keypoint": 0.35,
+  "imgsz": 640,
+  "mask_overlap_suppress": 0.5,
+  "seg_model": "yolo26n-seg.pt",
+  "pose_model": "yolo26n-pose.pt",
+  "ultralytics": "8.4.202",
+  "input_sha256": {
+    "video01.mp4": "17f8517c38fcba297aa99869580478b101c0200c29c99ccbaf3c0c41f9c20a4c",
+    "video02.mp4": "f143be6fcc702defe1ac1c7bb0901b7739eae2bf43f0f9d1288c06f6921c84ac",
+    "video03.mp4": "2e8101d7e881758dcb85f52d6e65a4349a89b8ea1c45b21fdfadec75fd8f2988",
+    "video04.mp4": "c9841a2e1c0cb54b70ed6d9e0f415b39048a5674ea614287a7612e1cc869ac1d"
+  }
+}

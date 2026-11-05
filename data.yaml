@@ -1,0 +1,8 @@
+# Rutas relativas a la ubicación de este YAML (sin path absoluto de Colab).
+# Reconstruir los archivos con: python src/prepare_dataset.py
+train: dataset_yolo26_mate_termo/images/train
+val: dataset_yolo26_mate_termo/images/val
+test: dataset_yolo26_mate_termo/images/test
+names:
+  0: mate
+  1: termo

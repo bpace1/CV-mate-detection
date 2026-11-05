@@ -1,0 +1,5 @@
+# Los hashes del split se calculan sobre bytes; conservarlos en Windows/Linux.
+dataset/** -text
+data/unified/labels/*.txt -text whitespace=cr-at-eol
+data/split_manifest.csv -text whitespace=cr-at-eol
+resultados/comparacion_mejoras/split_manifest.csv -text whitespace=cr-at-eol

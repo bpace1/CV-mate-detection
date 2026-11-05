@@ -1,60 +1,36 @@
-# Pendientes para la entrega
+# Estado de entrega y pendientes
 
-Lo que falta para cumplir el enunciado (`docs/enunciado_2026.pdf`). Actualizado el 4 de noviembre de 2026.
+Actualizado el 5 de noviembre de 2026 contra `docs/enunciado_2026.pdf`.
 
-## Hecho
+## Entregables disponibles
 
-- Dataset. Hay 60 imágenes con mate (61 cajas) y 50 con termo (51 cajas), así que se cumple el mínimo de 50 por clase. Las dos últimas fotos anotadas, `IMG_4040.jpeg` y `termo-47.jpeg`, están en `data/raw_annotations/labels_Franco_C.csv`.
-- Código. Los dos notebooks usan YOLO26, y el código pasa `ruff check src/ notebooks/`.
-- Re-entrenamiento con YOLO26n. Se corrió en Colab con una T4. Cortó en la época 52 y la mejor fue la 37. Los pesos están en `models/best.pt`, las métricas en `resultados/` y el notebook 01 se subió ejecutado.
+- [x] Dos clases propias: mate y termo.
+- [x] Dataset de 90 fotos: mate en 62 imágenes (65 cajas) y termo en 50 imágenes (51 cajas), con formato YOLO y CSV originales de anotación.
+- [x] Correcciones de etiquetas, sesiones identificadas y split fijo 63/13/14 con hashes verificables.
+- [x] `data.yaml` portable en la raíz y `src/prepare_dataset.py` para reconstruir el dataset sin reentrenar.
+- [x] Entrenamiento por transfer learning con YOLO26; comparación de cuatro configuraciones y selección usando validación.
+- [x] Pesos seleccionados en `models/best.pt` y confianza 0.25 en `models/inferencia.json`, unidos por SHA-256.
+- [x] Métricas, curvas, matriz, predicciones, calibración e historial de 80 épocas en `resultados/comparacion_mejoras/`.
+- [x] Ambos notebooks ejecutados sin errores guardados y con conclusiones.
+- [x] Cuatro videos originales y procesados, todos por debajo de dos minutos.
+- [x] Integración ejecutada de detección, segmentación COCO y pose; video04 aporta evidencia visual de esqueleto y seguimiento.
+- [x] Fuente y tramo 00:00–00:25 del video público registrados en `videos/input/video04_fuente.json` y `docs/video04_fuente_y_ejecucion.md`.
+- [x] Documentación del proyecto, datos, entrenamiento, resultados, ejemplos y conclusiones en README, notebooks y docs.
 
-## 1. Videos de prueba
+## Pendientes reales antes de cerrar la entrega
 
-El enunciado pide como entrada "un video de hasta 2 minutos de duración, o un link de algún video público", y recomienda "2 o 3 videos cortos de aproximadamente 20 segundos cada uno".
+1. **Segmentación sobre clases propias.** El enunciado pide excluirlas. El filtro implementado depende de las cajas propias; en muestras de video02 y video04 una máscara COCO cubre el mate cuando falta o es parcial su detección. La exclusión no es consistente. Hay que mejorar y volver a comprobar ese comportamiento para afirmar cumplimiento visual completo; documentarlo no lo corrige.
+2. **Falsos positivos y generalización.** Hay detecciones de termo sobre la persona en video04 y mates omitidos. El enunciado no fija un mAP mínimo ni exige detección perfecta, pero estas limitaciones deben quedar explícitas al presentar el trabajo. El test de 14 fotos/17 objetos es pequeño.
+3. **Revisión final humana.** Mirar completos los cuatro videos procesados, además de las muestras ya revisadas, y comprobar que la selección final muestre con claridad las tres tareas.
+4. **Formato de presentación.** El enunciado no exige expresamente un informe PDF separado. Si la cátedra lo pidió por otro medio, o el grupo quiere una memoria unificada, falta preparar ese informe/presentación; la información técnica ya está documentada.
+5. **Envío a la cátedra.** Confirmar el canal y la fecha efectiva, y realizar la entrega. El enunciado refiere al último día hábil de la anteúltima semana de cursada, sin una fecha calendario.
 
-Cada video tiene que mostrar:
+## Referencia de resultados vigentes
 
-- al menos una persona, para que se vea la pose;
-- un mate y un termo, para que se vean las cajas del detector propio;
-- otros objetos de COCO, como una taza, una botella, una silla o una laptop, para que se vean las máscaras.
+Seleccionado: YOLO26n sin mosaic, mAP50–95 de validación 0.8236. Test: precisión macro 0.8750, recall macro 0.8786, F1 macro 0.8737, mAP50 0.9045 y mAP50–95 0.5933. La corrida previa usaba otras etiquetas y otro test; sus métricas no son una comparación controlada.
 
-Hay que grabar o descargar 2 o 3 videos `.mp4` de unos 20 segundos y guardarlos en `videos/input/`, por ejemplo `video_mate_01.mp4`. Si son descargados, hay que anotar la URL y la licencia.
+Los videos suman 2837 fotogramas y 248.7 segundos de procesamiento, aproximadamente 11.4 FPS efectivos incluyendo lectura, inferencia, dibujo y conversión. Es procesamiento offline, sin demostración de tiempo real a los FPS de entrada.
 
-## 2. Conclusiones del entrenamiento
+## Organización del repositorio
 
-El enunciado pide documentar la arquitectura, la cantidad de épocas, el batch, el tamaño de imagen, las métricas y los resultados. Va en la sección 10 del notebook 01.
-
-Resultados en test con YOLO26n (9 imágenes, 11 cajas):
-
-| Clase | Precisión | Recall | F1 | mAP50 | mAP50-95 |
-|-------|-----------|--------|----|-------|----------|
-| mate | 0.808 | 0.606 | 0.692 | 0.734 | 0.539 |
-| termo | 0.708 | 0.750 | 0.728 | 0.683 | 0.527 |
-| total | 0.758 | 0.678 | 0.716 | 0.708 | 0.533 |
-
-Puntos para el análisis:
-
-- La corrida anterior usó YOLO11n por un error del notebook. En test dio F1 0.87 y mAP50 0.80, mejor que YOLO26n. En validación pasó al revés: YOLO26n llegó a mAP50 0.86 y mAP50-95 0.66. Con 11 cajas en test, cada error mueve el recall de una clase entre 14 y 25 puntos, así que con estos datos no se puede decir cuál de los dos modelos es mejor.
-- En la matriz de confusión (`resultados/confusion_matrix.png`, con confianza 0.35) hay 2 mates clasificados como termo, 1 mate y 1 termo no detectados, y 1 falso positivo de mate.
-- Desde la época 40, más o menos, la pérdida de validación sube mientras la de entrenamiento sigue bajando. Es sobreajuste, esperable con 72 imágenes de entrenamiento.
-- La mejora con más impacto sería sumar fotos, sobre todo con mate y termo juntos, que es donde el modelo los confunde.
-
-## 3. Procesamiento de videos
-
-El enunciado pide que el video procesado integre segmentación de COCO sin personas ni clases nuevas, pose con keypoints y esqueleto, y detección de las clases propias con caja, etiqueta y confianza.
-
-1. Poner los videos en `videos/input/`.
-2. Correr `notebooks/02_Procesamiento_Videos_YOLO26.ipynb`. Usa `models/best.pt`.
-3. Revisar los videos completos en `videos/output/`. Si aparece una máscara de "cup" o "bottle" encima de un mate o un termo, subir `CONF_CUSTOM` o bajar `MASK_OVERLAP_SUPPRESS`.
-4. Escribir las conclusiones de la sección 7 del notebook 02.
-
-## Lista de entrega
-
-- [x] Dataset: `dataset/`, `data/unified/labels/` y el `data.yaml` que genera el notebook 01
-- [x] Código: los dos notebooks y `src/`
-- [x] Re-entrenamiento con YOLO26
-- [x] Pesos y métricas: `models/best.pt` y `resultados/`
-- [ ] Videos originales en `videos/input/`
-- [ ] Videos procesados en `videos/output/`
-- [ ] Conclusiones en los dos notebooks
-- [ ] Entrega antes del último día hábil de la anteúltima semana de cursada
+Los originales del dataset, etiquetas, pesos, notebooks ejecutados, métricas y videos finales se versionan. Los ZIP de exportación, el dataset duplicado generado, las copias de descarga y el respaldo local redundante de los primeros tres videos quedan locales. La corrida original de entrenamiento se conserva como referencia histórica.

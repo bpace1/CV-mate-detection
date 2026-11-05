@@ -1,0 +1,5 @@
+video,salida,fotogramas,detecciones_mate,detecciones_termo,mascaras_COCO,poses_personas,segundos_ejecucion
+video01.mp4,video01_yolo26.mp4,278,282,98,389,113,44.8
+video02.mp4,video02_yolo26.mp4,1301,702,913,1184,427,94.2
+video03.mp4,video03_yolo26.mp4,633,751,398,1578,1779,51.8
+video04.mp4,video04_yolo26.mp4,625,261,868,272,628,57.9

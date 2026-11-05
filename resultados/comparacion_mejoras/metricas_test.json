@@ -1,0 +1,42 @@
+{
+  "model": "yolo26n.pt fine-tuned",
+  "experiment": "n_sin_mosaic",
+  "classes": {
+    "0": "mate",
+    "1": "termo"
+  },
+  "epochs_config": 80,
+  "epochs_run": 80,
+  "batch": 16,
+  "imgsz": 640,
+  "test_images": 14,
+  "test_instances": 17,
+  "confidence": 0.25,
+  "matching_iou": 0.5,
+  "precision": 0.875,
+  "recall": 0.8785714285714286,
+  "f1": 0.8736842105263158,
+  "averaging": "macro over classes at fixed validation confidence",
+  "mAP50": 0.9045357142857142,
+  "mAP50-95": 0.5933106746031747,
+  "ultralytics_precision_at_test_optimum": 0.8759016894978162,
+  "ultralytics_recall_at_test_optimum": 0.8785714285714286,
+  "confusion_matrix": [
+    [
+      9,
+      0,
+      0
+    ],
+    [
+      1,
+      6,
+      1
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "split_sha256": "be8a811691a6e702fe0bc11f65ad176329bb86976ffc0aab2b5d14b8e26daec2"
+}

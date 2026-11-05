@@ -1,0 +1,9 @@
+{
+  "experiment": "n_sin_mosaic",
+  "model": "yolo26n.pt",
+  "weights": "/content/CV-mate-detection/entrenamientos/comparacion_20261105_132543/n_sin_mosaic/weights/best.pt",
+  "confidence": 0.25,
+  "selection_split": "val",
+  "selection_metric": "mAP50-95",
+  "val_mAP50_95": 0.8235958333333334
+}

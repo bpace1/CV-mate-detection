@@ -1,0 +1,5 @@
+name,model,mosaic,weights,epochs_run,val_mAP50,val_mAP50_95
+n_mosaic100,yolo26n.pt,1.0,/content/CV-mate-detection/entrenamientos/comparacion_20261105_132543/n_mosaic100/weights/best.pt,80,0.98075,0.8144083333333334
+n_sin_mosaic,yolo26n.pt,0.0,/content/CV-mate-detection/entrenamientos/comparacion_20261105_132543/n_sin_mosaic/weights/best.pt,80,0.9784999999999999,0.8235958333333334
+n_mosaic50,yolo26n.pt,0.5,/content/CV-mate-detection/entrenamientos/comparacion_20261105_132543/n_mosaic50/weights/best.pt,80,0.995,0.7970069444444445
+s_mosaic50,yolo26s.pt,0.5,/content/CV-mate-detection/entrenamientos/comparacion_20261105_132543/s_mosaic50/weights/best.pt,80,0.9438888888888889,0.7041618230625584

@@ -1,0 +1,10 @@
+# Instalar primero torch/torchvision compatibles con la GPU y el driver.
+# NumPy 2 permite usar runtimes Colab con Python 3.13.
+# Se fija la versión usada en la corrida original para comparar recetas.
+ultralytics==8.4.202
+numpy>=1.26,<3
+pandas==2.2.3
+opencv-python==4.11.0.86
+matplotlib>=3.7
+scikit-learn>=1.2
+pyyaml>=6.0
