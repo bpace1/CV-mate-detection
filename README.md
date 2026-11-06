@@ -111,6 +111,8 @@ El notebook 02 corre en CPU, más lento. El notebook 01 necesita una GPU con CUD
 | 0 | `mate` | 62 | 65 |
 | 1 | `termo` | 50 | 51 |
 
+Son 90 imágenes en total; 22 tienen los dos objetos.
+
 Cada integrante anotó un grupo de fotos en MakeSense y exportó un CSV. `src/unify_annotations.py` asigna el ID según el nombre de la etiqueta, así que el orden de clases de cada export no importa. Para regenerar y validar las etiquetas:
 
 ```bash

@@ -52,7 +52,7 @@ Criterio de anotación: la caja cubre el recipiente visible y su base, sin estir
 | 1 | `termo` | 50 | 51 |
 | | **Total** | **90 imágenes** | **116** |
 
-Las dos clases superan el mínimo de 50 imágenes del enunciado. El mínimo cuenta imágenes que contienen la clase, no cajas. Hay 22 imágenes con los dos objetos (62 + 50 − 90 = 22).
+El dataset tiene **90 imágenes**. Las dos clases superan el mínimo de 50 del enunciado, que cuenta imágenes que contienen la clase, no cajas. Las columnas de clase suman 112 (62 + 50) porque 22 imágenes tienen los dos objetos y cuentan en las dos filas (62 + 50 − 90 = 22). Las cajas son 116 porque algunas fotos tienen más de una.
 
 ### 2.3. Revisión y validación
 
@@ -290,7 +290,7 @@ Las imágenes se extrajeron de los videos de `videos/input/` y `videos/output/` 
 
 ## 7. Conclusiones finales
 
-**Se cumplió el objetivo.** Entrenamos con transfer learning un detector YOLO26n para dos clases ajenas a COCO, con un dataset propio de 90 fotos etiquetadas en formato YOLO. Lo integramos con YOLO26 Segmentation y YOLO26 Pose en un mismo pipeline de video: cada fotograma muestra a la vez las cajas de `mate` y `termo` con nombre y confianza, las máscaras de los objetos COCO (sin personas ni clases propias) y el esqueleto de las personas con seguimiento.
+**Se cumplió el objetivo.** Entrenamos con transfer learning un detector YOLO26n para dos clases ajenas a COCO, con un dataset propio de 90 fotos (62 con mate y 50 con termo) etiquetadas en formato YOLO. Lo integramos con YOLO26 Segmentation y YOLO26 Pose en un mismo pipeline de video: cada fotograma muestra a la vez las cajas de `mate` y `termo` con nombre y confianza, las máscaras de los objetos COCO (sin personas ni clases propias) y el esqueleto de las personas con seguimiento.
 
 **El detector funciona bien en condiciones parecidas al entrenamiento.** En test logra mAP50 0,905 y F1 macro 0,874. `mate` es la clase más confiable (F1 0,947) y `termo` concentra todos los errores (F1 0,800). La localización fina es el punto más débil (mAP50-95 0,593).
 
