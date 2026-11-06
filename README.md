@@ -8,7 +8,7 @@ Entrenamos un detector YOLO26 para dos clases que no están en COCO, `mate` y `t
 2. `yolo26n-seg.pt` pinta máscaras sobre los objetos COCO. Omite las personas y las máscaras que caen sobre un mate o un termo.
 3. `yolo26n-pose.pt` dibuja los keypoints y el esqueleto de cada persona, con un ID de seguimiento.
 
-**El informe de entrega está en [docs/informe.md](docs/Documentación_Proyecto_Integrador-G5)**: descripción, dataset, entrenamiento, resultados, ejemplos del video procesado y conclusiones.
+**El informe de entrega está en [docs/Documentación_Proyecto_Integrador-G5.pdf](docs/Documentación_Proyecto_Integrador-G5)**: descripción, dataset, entrenamiento, resultados, ejemplos del video procesado y conclusiones.
 
 ## Integrantes
 
