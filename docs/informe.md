@@ -329,25 +329,3 @@ Qué controles hay:
 - `videos/output/configuracion_procesamiento.json` registra los hashes de los pesos y de cada video de entrada.
 
 Igual puede haber diferencias numéricas chicas entre GPUs. Además, el notebook 01 usa batch 16 en Colab y batch 4 fuera de Colab, para GPUs con menos memoria. Los resultados de este informe corresponden a la corrida en Colab con batch 16, cuyos pesos tienen SHA-256 `37910d2adef0de5b7beb35a9a716d23c72aa9af885e8c86aa5da47a73a959ef6`.
-
-## 9. Correspondencia con el enunciado
-
-| Pide el enunciado | Dónde está |
-|---|---|
-| 2 o 3 clases fuera de COCO | `mate` y `termo` (sección 2) |
-| Al menos 50 imágenes por clase, bien etiquetadas, en formato YOLO | 62 y 50 imágenes; `dataset/` y `data/unified/labels/` |
-| Entrenamiento con YOLO26 y transfer learning | `yolo26n.pt` → `models/best.pt` (sección 3) |
-| Arquitectura, épocas, batch, tamaño de imagen | Secciones 3.1 y 3.2 |
-| Métricas y resultados del entrenamiento | Sección 4 y `resultados/comparacion_mejoras/` |
-| Video de hasta 2 minutos (2 o 3 de unos 20 s) | 4 videos de 9 a 25 s en `videos/input/` |
-| Segmentación COCO con umbral, sin personas ni clases nuevas | Umbral 0,45 y reglas de la sección 5.2 |
-| Pose con keypoints, esqueleto y seguimiento | `yolo26n-pose.pt` + ByteTrack (sección 5.2) |
-| Clases propias con caja, nombre y confianza | Sección 6 |
-| Integración de Detection, Segmentation y Pose | Notebook 02, `videos/output/` |
-| Notebooks | `notebooks/01_Entrenamiento_YOLO26.ipynb` y `notebooks/02_Procesamiento_Videos_YOLO26.ipynb` |
-| Scripts | `src/` |
-| Dataset de entrenamiento | `dataset/`, `data/unified/labels/`, `data/split_manifest.csv` (o `dataset_yolo26_mate_termo/` ya armado) |
-| `data.yaml` | `data.yaml` |
-| `best.pt` | `models/best.pt` |
-| Video original y procesado | `videos/input/` y `videos/output/` |
-| Documentación | Este informe |
