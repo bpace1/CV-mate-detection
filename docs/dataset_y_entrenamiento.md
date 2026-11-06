@@ -40,6 +40,22 @@ python src/prepare_dataset.py
 
 El script copia las imágenes y etiquetas a `dataset_yolo26_mate_termo/` según el manifiesto. `data.yaml`, en la raíz, apunta a esa carpeta con rutas relativas.
 
+## Arquitectura e hiperparámetros
+
+El modelo final es YOLO26n: 260 capas, 2.504.580 parámetros y 5,9 GFLOPs a 640 px. Parte de `yolo26n.pt`, preentrenado en COCO. Ultralytics cambia la cabeza de 80 a 2 clases y transfiere 696 de los 708 tensores; los 12 que no se transfieren son la última convolución de la rama de clasificación. Se entrena la red completa, sin congelar capas.
+
+| Parámetro | Valor |
+|-----------|-------|
+| Épocas | 80 como máximo, `patience=20`; el modelo final completó las 80 y la mejor fue la 61 |
+| Batch | 16 |
+| Tamaño de imagen | 640 px |
+| Optimizador | `auto` → AdamW, lr0 0,001667, momentum 0,9, weight decay 0,0005, 3 épocas de warmup |
+| Semilla | 42, determinista |
+| Mosaic | 0,0 en el modelo final |
+| Entorno | Colab, Tesla T4, Ultralytics 8.4.202, PyTorch 2.11.0+cu130 |
+
+El notebook 01 usa batch 4 si corre fuera de Colab. Los resultados de este documento son los de la corrida en Colab con batch 16. El detalle completo está en [informe.md](informe.md), sección 3.
+
 ## Comparación de configuraciones
 
 Entrenamos cuatro candidatos desde pesos COCO, con el mismo split, semilla 42, imágenes de 640 px, batch 16 y hasta 80 épocas con early stopping a las 20 sin mejora. Solo cambian el modelo base y mosaic, un aumento que pega cuatro imágenes en una:
@@ -71,4 +87,4 @@ F1 por clase: mate 0.947, termo 0.800. La matriz de confusión tiene 9 mates y 6
 
 ## Primera corrida
 
-`resultados/historico_original/` guarda la primera corrida: YOLO26n con mosaic por defecto, el split anterior (test de 9 imágenes y 11 objetos) y las etiquetas sin corregir. Dio mAP50 0.708 en test. No se puede comparar con la corrida actual porque cambiaron las etiquetas y el split, y ese modelo vio en entrenamiento fotos que ahora son test.
+`resultados/historico_original/` guarda la primera corrida: YOLO26n con mosaic por defecto, el split anterior (test de 9 imágenes y 11 objetos) y las etiquetas sin corregir. Dio mAP50 0.708 en test. No se puede comparar con la corrida actual porque cambiaron las etiquetas y el split, y ese modelo vio en entrenamiento fotos que ahora son test. Sus pesos están en `old_best.pt`, solo como referencia; el modelo entregado es `models/best.pt`.

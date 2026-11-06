@@ -8,6 +8,8 @@ Entrenamos un detector YOLO26 para dos clases que no están en COCO, `mate` y `t
 2. `yolo26n-seg.pt` pinta máscaras sobre los objetos COCO. Omite las personas y las máscaras que caen sobre un mate o un termo.
 3. `yolo26n-pose.pt` dibuja los keypoints y el esqueleto de cada persona, con un ID de seguimiento.
 
+**El informe de entrega está en [docs/informe.md](docs/informe.md)**: descripción, dataset, entrenamiento, resultados, ejemplos del video procesado y conclusiones.
+
 ## Integrantes
 
 - Bruno Pace
@@ -18,7 +20,7 @@ Entrenamos un detector YOLO26 para dos clases que no están en COCO, `mate` y `t
 
 ## Resultados
 
-El modelo final es YOLO26n entrenado sin mosaic, elegido entre cuatro configuraciones por su mAP50-95 en validación. Con confianza 0.25, en test (14 imágenes, 17 objetos):
+El modelo final es YOLO26n (2,5 M de parámetros) entrenado con transfer learning desde COCO, sin mosaic: 80 épocas, batch 16 e imágenes de 640 px. Lo elegimos entre cuatro configuraciones por su mAP50-95 en validación. Con confianza 0.25, en test (14 imágenes, 17 objetos):
 
 | Precisión | Recall | F1 | mAP50 | mAP50-95 |
 |-----------|--------|----|-------|----------|
@@ -31,13 +33,14 @@ Los cuatro videos procesados están en `videos/output/`. El análisis del entren
 ```text
 CV-mate-detection/
 ├── README.md
-├── FALTA_HACER.md                    # Pendientes antes de entregar
 ├── data.yaml                         # Configuración del dataset para Ultralytics
 ├── requirements.txt                  # Dependencias para correr en local
 ├── requirements-training.txt         # Dependencias que instala el notebook 01
 ├── requirements-video.txt            # Dependencias que instala el notebook 02
 ├── pyproject.toml                    # Configuración de ruff
 ├── docs/
+│   ├── informe.md                    # Informe de entrega (documentación)
+│   ├── img/                          # Fotogramas de ejemplo del informe
 │   ├── enunciado_2026.pdf            # Enunciado de la cátedra
 │   ├── entrega_y_rubrica.md          # Consigna de entrega y rúbrica
 │   ├── dataset_y_entrenamiento.md    # Correcciones, split y comparación de modelos
@@ -61,7 +64,7 @@ CV-mate-detection/
 │   └── inferencia.json               # Confianza elegida y hash de los pesos
 ├── resultados/
 │   ├── comparacion_mejoras/          # Métricas, curvas y matriz del modelo final
-│   └── historico_original/           # Primera corrida, como referencia
+│   └── historico_original/           # Primera corrida (old_best.pt), solo como referencia
 └── videos/
     ├── input/                        # Videos originales
     └── output/                       # Videos procesados y resumen
@@ -79,7 +82,7 @@ Es la forma recomendada, porque el entrenamiento necesita GPU.
 
 La primera celda de código clona el repositorio en `/content/CV-mate-detection` y la segunda instala las dependencias. No hace falta subir archivos ni montar Drive. Los archivos de `/content` se borran al cerrar la sesión, así que al terminar hay que descargar el ZIP que arma la última celda.
 
-**Notebook 01** (entrenamiento): valida las etiquetas, arma el split, entrena los cuatro candidatos, evalúa el elegido en test y exporta `models/best.pt` y `models/inferencia.json`. Al final arma `entregable_entrenamiento.zip`. Entrena cuatro modelos de hasta 80 épocas cada uno, así que en una T4 tarda bastante. Sin GPU se detiene antes de entrenar.
+**Notebook 01** (entrenamiento): valida las etiquetas, arma el split, entrena los cuatro candidatos, evalúa el elegido en test y exporta `models/best.pt` y `models/inferencia.json`. Al final arma `entregable_entrenamiento.zip`. Entrena cuatro modelos de hasta 80 épocas cada uno, unos 25 minutos en una T4. Sin GPU se detiene antes de entrenar. Fuera de Colab usa batch 4 en lugar de 16, así que los resultados no son idénticos a los publicados; volver a correrlo sobrescribe `models/` y `resultados/comparacion_mejoras/`.
 
 **Notebook 02** (videos): procesa los videos de `videos/input/` con el detector propio, la segmentación y la pose, y escribe los resultados en `videos/output/`. Al final arma `entregable_videos.zip`. Usa los pesos que ya están en `models/`, así que se puede correr sin pasar por el notebook 01. Con una T4, los cuatro videos tardan unos 4 minutos.
 
@@ -108,6 +111,8 @@ El notebook 02 corre en CPU, más lento. El notebook 01 necesita una GPU con CUD
 | 0 | `mate` | 62 | 65 |
 | 1 | `termo` | 50 | 51 |
 
+Son 90 imágenes en total; 22 tienen los dos objetos.
+
 Cada integrante anotó un grupo de fotos en MakeSense y exportó un CSV. `src/unify_annotations.py` asigna el ID según el nombre de la etiqueta, así que el orden de clases de cada export no importa. Para regenerar y validar las etiquetas:
 
 ```bash
@@ -115,7 +120,7 @@ python3 src/unify_annotations.py
 python3 src/validate_dataset.py
 ```
 
-El split es 63/13/14 imágenes y mantiene juntas las fotos de una misma sesión. Está fijado en `data/split_manifest.csv`, y `python3 src/prepare_dataset.py` arma la carpeta `dataset_yolo26_mate_termo/` que usa `data.yaml`. Las correcciones de etiquetas y el criterio del split están en [docs/dataset_y_entrenamiento.md](docs/dataset_y_entrenamiento.md).
+El split es 63/13/14 imágenes y mantiene juntas las fotos de una misma sesión. Está fijado en `data/split_manifest.csv`, y `python3 src/prepare_dataset.py` arma la carpeta `dataset_yolo26_mate_termo/` que usa `data.yaml`. Esa carpeta no está versionada porque se regenera; hay que armarla antes de usar `data.yaml` fuera de los notebooks. Las correcciones de etiquetas y el criterio del split están en [docs/dataset_y_entrenamiento.md](docs/dataset_y_entrenamiento.md).
 
 ## Estilo de código
 
@@ -130,9 +135,12 @@ ruff check src/ notebooks/
 | Pide el enunciado | Dónde está |
 |-------------------|------------|
 | Código fuente y notebooks ejecutados | `notebooks/` y `src/` |
-| Dataset | `dataset/`, `data/unified/labels/` y `data/split_manifest.csv` |
+| Dataset | `dataset/`, `data/unified/labels/` y `data/split_manifest.csv`; dividido en formato YOLO con `src/prepare_dataset.py` |
 | `data.yaml` | `data.yaml` |
-| Pesos del modelo final | `models/best.pt` |
+| Pesos del modelo final (`best.pt`) | `models/best.pt` |
 | Video original | `videos/input/` |
 | Video procesado | `videos/output/` |
 | Métricas y gráficos | `resultados/comparacion_mejoras/` |
+| Documentación | [docs/informe.md](docs/informe.md) |
+
+`yolo26n.pt`, `yolo26n-seg.pt` y `yolo26n-pose.pt` son los pesos preentrenados en COCO que Ultralytics descarga solo; no se versionan. `models/best.pt` es el único detector entrenado por el grupo. `resultados/historico_original/old_best.pt` es la primera corrida y no se usa.
