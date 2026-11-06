@@ -220,6 +220,9 @@ __marimo__/
 dataset_yolo26_mate_termo/
 entrenamientos/
 entregable_entrenamiento.zip
+# Paquete para subir a Drive (se arma desde el commit)
+entrega_grupo5/
+entrega_grupo5.zip
 # Pesos preentrenados que Ultralytics descarga en el directorio de trabajo
 yolo*.pt
 
