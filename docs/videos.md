@@ -29,6 +29,8 @@ Los conteos son apariciones por fotograma, no objetos distintos. La configuraci�
 ## Errores observados
 
 - **Termos falsos sobre la persona** en video04: cajas de termo sobre la cabeza o el torso.
+- **Pava detectada como termo** en video04, por ejemplo cerca del segundo 15.
+- **Etiqueta tapada por el título.** Cuando una caja llega al borde superior, el nombre y la confianza quedan debajo del título del video. Pasa con el termo de video02 cerca del segundo 10.85.
 - **Mates perdidos.** El mate rojo de video04 no se detecta en varios cuadros. En video03 el termo se pierde en algunos cuadros mientras se sirve el agua.
 - **Máscaras sobre mates.** Cuando el detector pierde un mate más de 2 segundos, el segmentador lo pinta como `cup` o `bowl`. Por ejemplo, en video02 cerca del segundo 10.85.
 - **Poses de brazos sueltos** en video01 a video03: el modelo de pose toma un brazo o una mano como persona, con uno o dos keypoints.

@@ -225,6 +225,8 @@ yolo*.pt
 
 # Area de trabajo local (no versionar)
 scratch/
+# Predicciones sueltas que Ultralytics guarda por defecto
+runs/
 
 # Exportaciones regenerables y copias locales de descarga/revisión.
 entregable_videos.zip
