@@ -7,6 +7,7 @@
   "confidence_keypoint": 0.35,
   "imgsz": 640,
   "mask_overlap_suppress": 0.5,
+  "mask_memory_seconds": 2.0,
   "seg_model": "yolo26n-seg.pt",
   "pose_model": "yolo26n-pose.pt",
   "ultralytics": "8.4.202",
